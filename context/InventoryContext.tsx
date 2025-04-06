@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type InventoryItem = {
+export type InventoryItem = {
   name: string;
   initlQuantity: number;
   defaultUnit: string;
@@ -13,12 +13,15 @@ type InventoryContextType = {
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
+// Default inventory values
+const defaultInventory: InventoryItem[] = [
+  { name: 'Apples', initlQuantity: 0, defaultUnit: 'unit(s)' },
+  { name: 'Carrots', initlQuantity: 0, defaultUnit: 'unit(s)' },
+  { name: 'Eggs', initlQuantity: 0, defaultUnit: 'unit(s)' },
+];
+
 export const InventoryProvider = ({ children }: { children: ReactNode }) => {
-  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([
-    { name: 'Apples', initlQuantity: 0, defaultUnit: 'unit(s)' },
-    { name: 'Carrots', initlQuantity: 0, defaultUnit: 'unit(s)' },
-    { name: 'Eggs', initlQuantity: 0, defaultUnit: 'unit(s)' },
-  ]);
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>(defaultInventory);
 
   return (
     <InventoryContext.Provider value={{ inventoryItems, setInventoryItems }}>
@@ -29,8 +32,6 @@ export const InventoryProvider = ({ children }: { children: ReactNode }) => {
 
 export const useInventory = () => {
   const context = useContext(InventoryContext);
-  if (!context) {
-    throw new Error('useInventory must be used within an InventoryProvider');
-  }
+  if (!context) throw new Error('useInventory must be used within InventoryProvider');
   return context;
 };
