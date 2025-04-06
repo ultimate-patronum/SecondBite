@@ -13,15 +13,16 @@ type InventoryContextType = {
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
-// Default inventory values
-const defaultInventory: InventoryItem[] = [
-  { name: 'Apples', initlQuantity: 0, defaultUnit: 'unit(s)' },
-  { name: 'Carrots', initlQuantity: 0, defaultUnit: 'unit(s)' },
-  { name: 'Eggs', initlQuantity: 0, defaultUnit: 'unit(s)' },
-];
+// Remove the defaultInventory array entirely if you don't want any default items
+// const defaultInventory: InventoryItem[] = [
+//   { name: 'Apples', initlQuantity: 0, defaultUnit: 'unit(s)' },
+//   { name: 'Carrots', initlQuantity: 0, defaultUnit: 'unit(s)' },
+//   { name: 'Eggs', initlQuantity: 0, defaultUnit: 'unit(s)' },
+// ];
 
 export const InventoryProvider = ({ children }: { children: ReactNode }) => {
-  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>(defaultInventory);
+  // Initialize with an empty array
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
 
   return (
     <InventoryContext.Provider value={{ inventoryItems, setInventoryItems }}>

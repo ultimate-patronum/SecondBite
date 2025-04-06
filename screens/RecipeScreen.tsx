@@ -22,9 +22,10 @@ interface Ingredient {
 interface Recipe {
   name: string;
   ingredients: Ingredient[];
-  instructions: string; // Ensure this is marked as required
+  instructions?: string; // Ensure this is marked as required
   steps: string; // Optional or required depending on your logic
 }
+
 
 
 const RecipesScreen = () => {
@@ -69,14 +70,27 @@ const RecipesScreen = () => {
     const newRecipe: Recipe = {
       name: recipeName,
       ingredients: recipeIngredients.filter(ing => ing.name.trim() !== ''),
-      instructions: recipeInstructions,  // Ensure instructions is set here
+      instructions: recipeInstructions || '',  // Ensure instructions is set
       steps: '',  // If 'steps' is optional, set as empty string or provide default
     };
   
-    setRecipes((prev) => [...prev, newRecipe]);
+    if (editingRecipe) {
+      // Update the existing recipe
+      const updatedRecipes = recipes.map(r =>
+        r.name === editingRecipe.name ? newRecipe : r
+      );
+      setRecipes(updatedRecipes);
+    } else {
+      // Add a new recipe
+      setRecipes(prev => [...prev, newRecipe]);
+    }
+  
     resetForm();
     setModalVisible(false);
+    setEditingRecipe(null); // Reset editing state
   };
+  
+  
   
   const resetForm = () => {
     setRecipeName('');
@@ -110,12 +124,18 @@ const RecipesScreen = () => {
   };
 
   const handleEditButtonClick = (recipe: Recipe) => {
+    // Ensure that the recipe passed to the modal has all required fields
+    if (!recipe.instructions) {
+      recipe.instructions = '';  // Set default value if instructions is missing
+    }
+  
     setEditingRecipe(recipe);
     setRecipeName(recipe.name);
     setRecipeIngredients(recipe.ingredients);
     setRecipeInstructions(recipe.instructions);
     setModalVisible(true);
   };
+  
 
   return (
     <ScrollView style={styles.container}>
@@ -174,19 +194,28 @@ const RecipesScreen = () => {
       </Modal>
 
       {recipes.map((recipe, index) => (
-        <View key={index} style={styles.recipeCard}>
-          <Text style={styles.recipeTitle}>{recipe.name}</Text>
-          <Text style={styles.servingText}>
-            Servings: {calculateServings(recipe.ingredients)}
-          </Text>
-          <Text style={styles.subtitle}>Ingredients:</Text>
-          {recipe.ingredients.map((ing, i) => (
-            <Text key={i} style={styles.ingredientText}>
-              - {ing.name} ({ing.quantity})
-            </Text>
-          ))}
-        </View>
-      ))}
+  <View key={index} style={styles.recipeCard}>
+    <Text style={styles.recipeTitle}>{recipe.name}</Text>
+    <Text style={styles.servingText}>
+      Servings: {calculateServings(recipe.ingredients)}
+    </Text>
+    <Text style={styles.subtitle}>Ingredients:</Text>
+    {recipe.ingredients.map((ing, i) => (
+      <Text key={i} style={styles.ingredientText}>
+        - {ing.name} ({ing.quantity})
+      </Text>
+    ))}
+
+    {/* Edit Button */}
+    <TouchableOpacity
+      style={styles.editButton}
+      onPress={() => handleEditButtonClick(recipe)} // Trigger edit modal
+    >
+      <Text style={styles.editButtonText}>Edit</Text>
+    </TouchableOpacity>
+  </View>
+))}
+
     </ScrollView>
   );
 };
@@ -259,6 +288,21 @@ const styles = StyleSheet.create({
     color: '#228B22',
     fontWeight: 'bold',
   },
+  editButton: {
+    marginTop: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#6a8e3a',  // Example color
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  
+  editButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  
 });
 
 export default RecipesScreen;
