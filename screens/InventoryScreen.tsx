@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   addButton: {
-    backgroundColor: '#6a8e3a',  // Darker green shade
+    backgroundColor: '#228B22',  // Darker green shade
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 20,

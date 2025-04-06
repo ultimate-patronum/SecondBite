@@ -24,23 +24,33 @@ const STORAGE_KEY = '@recipe_list';
 export const RecipeProvider = ({ children }: { children: ReactNode }) => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
 
+  // Clear recipes on app startup
   useEffect(() => {
     (async () => {
       try {
-        const storedRecipes = await AsyncStorage.getItem(STORAGE_KEY);
-        if (storedRecipes) {
-          setRecipes(JSON.parse(storedRecipes));
-        }
+        // Clear AsyncStorage upon refresh or app start
+        await AsyncStorage.removeItem(STORAGE_KEY);
+        // Ensure state is set to an empty array
+        setRecipes([]);
       } catch (e) {
-        console.error('🔴 Failed to load recipes:', e);
+        console.error('🔴 Failed to clear recipes:', e);
       }
     })();
-  }, []);
+  }, []); // Empty dependency ensures this only happens on first load
 
+  // Save recipes when the state changes
   useEffect(() => {
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)).catch(err =>
-      console.error('🔴 Failed to save recipes:', err)
-    );
+    const saveRecipes = async () => {
+      try {
+        if (recipes.length > 0) {
+          // Only save to AsyncStorage if there are recipes to save
+          await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+        }
+      } catch (e) {
+        console.error('🔴 Failed to save recipes:', e);
+      }
+    };
+    saveRecipes();
   }, [recipes]);
 
   return (
