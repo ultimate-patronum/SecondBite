@@ -14,9 +14,10 @@ interface InventoryItemProps {
   name: string;
   initlQuantity: number;
   defaultUnit: string;
+  onDelete: (name: string) => void;
 }
 
-const InventoryItem: React.FC<InventoryItemProps> = ({ name, initlQuantity, defaultUnit }) => {
+const InventoryItem: React.FC<InventoryItemProps> = ({ name, initlQuantity, defaultUnit, onDelete}) => {
   const isEggs = name.toLowerCase() === 'eggs';
   const validUnit =  ('unit');
   const [quantity, setQuantity] = useState(initlQuantity); 
@@ -32,8 +33,18 @@ const InventoryItem: React.FC<InventoryItemProps> = ({ name, initlQuantity, defa
     }
   };
 
+  const handleDelete = () => {
+    onDelete(name);
+  }
+
   return (
     <View style={styles.card}>
+
+    <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+    <Text style={styles.deleteText}>X</Text>
+    </TouchableOpacity>
+
+
       <Text style={styles.title}>{name}</Text>
       <Text style={styles.qty}>
         Quantity: {quantity} {unit}
@@ -76,6 +87,23 @@ const styles = StyleSheet.create({
         shadowRadius: 6,
         elevation: 4,
       }, 
+
+      deleteButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: '#fd3a2d',
+        borderRadius: 12,
+        width: 24,
+        height: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      deleteText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16,
+      },
   
       title: {
         fontSize: 20,

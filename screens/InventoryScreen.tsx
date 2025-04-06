@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, Button, View, TextInput } from 'react-native';
+import { ScrollView, StyleSheet, Text, Button, View, TextInput, TouchableOpacity } from 'react-native';
 import InventoryItem from '../components/InventoryItem';
 import PopupModal from '../components/PopupModal';
 import { useInventory } from '../context/InventoryContext';
@@ -26,7 +26,11 @@ function App(): React.JSX.Element {
   const [newItemUnit, setNewItemUnit] = useState('unit');
   const [modalVisible, setModalVisible] = useState(false);
 
-
+const handleDelete = (name: string) => {
+  setInventoryItems(prevItems => 
+    prevItems.filter(item=> item.name !== name)
+  );
+};
 //   const sampleRecipe = {
 //     name: 'Hearty Vegetable Stew',
 //     ingredients: [
@@ -54,7 +58,12 @@ function App(): React.JSX.Element {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Button title="Add Produce Item" onPress={() => setModalVisible(true)} />
+      <TouchableOpacity 
+          style={styles.addButton} 
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={styles.addButtonText}>Add Produce Item</Text>
+        </TouchableOpacity>
       </View>
 
         <PopupModal
@@ -118,6 +127,7 @@ function App(): React.JSX.Element {
           name={item.name}
           initlQuantity={item.initlQuantity}
           defaultUnit={item.defaultUnit}
+          onDelete={() => handleDelete(item.name)}
         />
       ))}
 
@@ -145,6 +155,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     padding: 8,
     borderRadius: 5,
+  },
+  addButton: {
+    backgroundColor: '#6a8e3a',  // Darker green shade
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   picker: {
     height: 50,

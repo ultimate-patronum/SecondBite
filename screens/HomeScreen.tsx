@@ -1,12 +1,24 @@
 import React from 'react';
-import { View, Button, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 const HomeScreen = ({ navigation }: any) => {
   return (
     <View style={styles.container}>
-      <Button title="Go to Inventory" onPress={() => navigation.navigate('Inventory')} />
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('Inventory')}
+      >
+        <Text style={styles.buttonText}>Go to Inventory</Text>
+      </TouchableOpacity>
+
       <View style={{ height: 20 }} />
-      <Button title="Go to Recipes" onPress={() => navigation.navigate('Recipes')} />
+
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('Recipes')}
+      >
+        <Text style={styles.buttonText}>Go to Recipes</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -16,6 +28,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+  },
+  button: {
+    backgroundColor: '#228B22',  // Forest green shade
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
