@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useInventory } from '../context/InventoryContext';
+import { useRecipes } from '../context/RecipeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 interface Ingredient {
   name: string;
@@ -19,37 +22,66 @@ interface Ingredient {
 interface Recipe {
   name: string;
   ingredients: Ingredient[];
-  instructions: string;
+  instructions: string; // Ensure this is marked as required
+  steps: string; // Optional or required depending on your logic
 }
+
 
 const RecipesScreen = () => {
   const { inventoryItems } = useInventory();
+  const { recipes, setRecipes } = useRecipes();
+  // Using context to load/save recipes
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [recipeName, setRecipeName] = useState('');
-  const [recipeIngredients, setRecipeIngredients] = useState<Ingredient[]>([
-    { name: '', quantity: 1 },
-  ]);
+  const [recipeIngredients, setRecipeIngredients] = useState<Ingredient[]>([{ name: '', quantity: 1 }]);
   const [recipeInstructions, setRecipeInstructions] = useState('');
+
+  useEffect(() => {
+    const loadRecipes = async () => {
+      try {
+        const savedRecipes = await AsyncStorage.getItem('recipes');
+        if (savedRecipes) {
+          setRecipes(JSON.parse(savedRecipes));
+        }
+      } catch (error) {
+        console.error("Error loading recipes", error);
+      }
+    };
+    loadRecipes();
+  }, []);
+
+  useEffect(() => {
+    const saveRecipes = async () => {
+      try {
+        await AsyncStorage.setItem('recipes', JSON.stringify(recipes));
+      } catch (error) {
+        console.error("Error saving recipes", error);
+      }
+    };
+    saveRecipes();
+  }, [recipes]);
 
   const handleAddRecipe = () => {
     if (recipeName.trim() === '') return;
-
-    setRecipes(prev => [
-      ...prev,
-      {
-        name: recipeName,
-        ingredients: recipeIngredients.filter(ing => ing.name.trim() !== ''),
-        instructions: recipeInstructions,
-      },
-    ]);
-
+  
+    const newRecipe: Recipe = {
+      name: recipeName,
+      ingredients: recipeIngredients.filter(ing => ing.name.trim() !== ''),
+      instructions: recipeInstructions,  // Ensure instructions is set here
+      steps: '',  // If 'steps' is optional, set as empty string or provide default
+    };
+  
+    setRecipes((prev) => [...prev, newRecipe]);
+    resetForm();
+    setModalVisible(false);
+  };
+  
+  const resetForm = () => {
     setRecipeName('');
     setRecipeIngredients([{ name: '', quantity: 1 }]);
     setRecipeInstructions('');
-    setModalVisible(false);
   };
 
   const calculateServings = (ingredients: Ingredient[]) => {
@@ -74,21 +106,25 @@ const RecipesScreen = () => {
   };
 
   const addIngredientField = () => {
-    setRecipeIngredients(prev => [...prev, { name: '', quantity: 0}]);
+    setRecipeIngredients(prev => [...prev, { name: '', quantity: 0 }]);
+  };
+
+  const handleEditButtonClick = (recipe: Recipe) => {
+    setEditingRecipe(recipe);
+    setRecipeName(recipe.name);
+    setRecipeIngredients(recipe.ingredients);
+    setRecipeInstructions(recipe.instructions);
+    setModalVisible(true);
   };
 
   return (
     <ScrollView style={styles.container}>
-      <Button
-        title="Add Recipe"
-        onPress={() => setModalVisible(true)}
-        color="#228B22"
-      />
+      <Button title="Add Recipe" onPress={() => setModalVisible(true)} color="#228B22" />
 
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>New Recipe</Text>
+            <Text style={styles.modalTitle}>{editingRecipe ? 'Edit Recipe' : 'New Recipe'}</Text>
 
             <TextInput
               placeholder="Recipe Name"
@@ -123,14 +159,15 @@ const RecipesScreen = () => {
             <TextInput
               placeholder="Instructions"
               value={recipeInstructions}
-              onChangeText={setRecipeInstructions}
+              onChangeText={setRecipeInstructions}  // Update instructions correctly
               style={[styles.input, { height: 80 }]}
               multiline
             />
 
+
             <View style={styles.buttonRow}>
               <Button title="Cancel" color="#888" onPress={() => setModalVisible(false)} />
-              <Button title="Done Editing" onPress={handleAddRecipe} color="#228B22" />
+              <Button title="Done" onPress={handleAddRecipe} color="#228B22" />
             </View>
           </View>
         </View>
@@ -153,6 +190,7 @@ const RecipesScreen = () => {
     </ScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
