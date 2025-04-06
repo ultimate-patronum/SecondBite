@@ -77,10 +77,10 @@ const styles = StyleSheet.create({
         elevation: 4,
       }, 
   
-  title: {
-    fontSize: 20,
-    fontWeight: '600',
-  },
+      title: {
+        fontSize: 20,
+        fontWeight: '600',
+      },
   qty: {
     fontSize: 16,
     marginVertical: 10,

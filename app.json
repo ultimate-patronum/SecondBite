@@ -1,4 +1,7 @@
 {
   "name": "secondbite",
-  "displayName": "secondbite"
+  "displayName": "secondbite",
+  "plugins": [
+    "expo-font"
+  ]
 }

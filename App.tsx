@@ -1,155 +1,23 @@
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import InventoryScreen from './screens/InventoryScreen.tsx';
+import RecipesScreen from './screens/RecipeScreen.tsx';
+import { InventoryProvider } from './context/InventoryContext.tsx';
+import HomeScreen from './screens/HomeScreen.tsx';
 
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, Button, View, TextInput } from 'react-native';
-import InventoryItem from './components/InventoryItem';
-import PopupModal from './components/PopupModal';
+const Stack = createNativeStackNavigator();
 
-import Recipe from './components/Recipe';
-import { Picker } from '@react-native-picker/picker';
-
-function App(): React.JSX.Element {
-  const [inventoryItems, setInventoryItems] = useState([
-    { name: 'Apples', initlQuantity: 0, defaultUnit: 'unit(s)' },
-    { name: 'Carrots', initlQuantity: 0, defaultUnit: 'unit(s)' },
-    { name: 'Eggs', initlQuantity: 0, defaultUnit: 'unit(s)' },
-  ]);
-
-  const [newItemName, setNewItemName] = useState('');
-  const [newItemQuantity, setNewItemQuantity] = useState('');
-  const [newItemUnit, setNewItemUnit] = useState('unit');
-  const [modalVisible, setModalVisible] = useState(false);
-
-
-  const sampleRecipe = {
-    name: 'Hearty Vegetable Stew',
-    ingredients: [
-      'Carrots',
-      'Potatoes',
-      'Onions',
-      'Celery',
-      'Tomato Paste',
-      'Vegetable Broth',
-      'Garlic',
-      'Bay Leaf',
-      'Salt',
-      'Pepper',
-    ],
-    steps: `
-1. Chop all vegetables.
-2. Sauté onions, garlic, and celery until fragrant.
-3. Add carrots and potatoes, cook for 5 minutes.
-4. Stir in tomato paste, then pour in vegetable broth.
-5. Add bay leaf, salt, and pepper.
-6. Bring to a boil, then simmer for 30–40 minutes.
-7. Remove bay leaf and serve hot.`,
-  };
-
+export default function App() {
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Button title="Add Produce Item" onPress={() => setModalVisible(true)} />
-      </View>
-
-        <PopupModal
-          visible={modalVisible}
-          onClose={() => {
-            setModalVisible(false);
-            setNewItemName('');
-            setNewItemQuantity('');
-            setNewItemUnit('unit(s)'); // or your default unit
-          }}
-
-          onAdd={(name: string, quantity: number, unit: string) => {
-            // Normalize the name to remove extra spaces and ensure lowercase comparison
-            const normalizedName = name.toLowerCase().replace(/\s+/g, '').trim();
-          
-            setInventoryItems(prevItems => {
-              // Check if the item exists in the inventory
-              const existingItemIndex = prevItems.findIndex(item => 
-                item.name.toLowerCase().replace(/\s+/g, '').trim() === normalizedName
-              );
-          
-              if (existingItemIndex !== -1) {
-                // Item found, update the quantity
-                const updatedItems = [...prevItems];
-                updatedItems[existingItemIndex].initlQuantity += quantity;
-                return updatedItems;
-              } else {
-                // Item not found, create a new entry
-                return [
-                  ...prevItems,
-                  {
-                    name: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
-                    initlQuantity: quantity,
-                    defaultUnit: unit,
-                  },
-                ];
-              }
-            });
-          
-            // Reset modal and form states after adding the item
-            setModalVisible(false);
-            setNewItemName('');
-            setNewItemQuantity('');
-            setNewItemUnit('unit(s)');
-          }}
-          
-          
-          newItemName={newItemName}
-          setNewItemName={setNewItemName}
-          newItemQuantity={newItemQuantity}
-          setNewItemQuantity={setNewItemQuantity}
-          newItemUnit={newItemUnit}
-          setNewItemUnit={setNewItemUnit}
-        />
-
-
-
-      {inventoryItems.map((item, index) => (
-        <InventoryItem
-          key={index}
-          name={item.name}
-          initlQuantity={item.initlQuantity}
-          defaultUnit={item.defaultUnit}
-        />
-      ))}
-
-      <Text style={styles.sectionTitle}>Suggested Recipe</Text>
-      <Recipe
-        name={sampleRecipe.name}
-        ingredients={sampleRecipe.ingredients}
-        steps={sampleRecipe.steps}
-      />
-    </ScrollView>
+    <InventoryProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="Home Page" component={HomeScreen} />
+          <Stack.Screen name="Inventory" component={InventoryScreen} />
+          <Stack.Screen name="Recipes" component={RecipesScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </InventoryProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  header: {
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 10,
-    padding: 8,
-    borderRadius: 5,
-  },
-  picker: {
-    height: 50,
-    width: 150,
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginTop: 24,
-    marginBottom: 12,
-  },
-});
-
-export default App;
