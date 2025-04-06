@@ -53,9 +53,8 @@ export default function PopupModal({
             onValueChange={setNewItemUnit}
             style={styles.picker}
           >
-            <Picker.Item label="kg" value="kg" />
-            <Picker.Item label="g" value="g" />
-            <Picker.Item label="dozen" value="dozen" />
+            <Picker.Item label="unit" value="unit" />
+            
           </Picker>
           <View style={styles.buttonRow}>
             <Button title="Cancel" onPress={onClose} color="#e57373" />

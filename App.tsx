@@ -9,44 +9,16 @@ import { Picker } from '@react-native-picker/picker';
 
 function App(): React.JSX.Element {
   const [inventoryItems, setInventoryItems] = useState([
-    { name: 'Apples', initlQuantity: 1, defaultUnit: 'kg' },
-    { name: 'Carrots', initlQuantity: 0.5, defaultUnit: 'kg' },
-    { name: 'Eggs', initlQuantity: 2, defaultUnit: 'dozen' },
+    { name: 'Apples', initlQuantity: 0, defaultUnit: 'unit(s)' },
+    { name: 'Carrots', initlQuantity: 0, defaultUnit: 'unit(s)' },
+    { name: 'Eggs', initlQuantity: 0, defaultUnit: 'unit(s)' },
   ]);
 
   const [newItemName, setNewItemName] = useState('');
   const [newItemQuantity, setNewItemQuantity] = useState('');
-  const [newItemUnit, setNewItemUnit] = useState('');
+  const [newItemUnit, setNewItemUnit] = useState('unit');
   const [modalVisible, setModalVisible] = useState(false);
 
-
-  
-
-
-  const handleAddItem = () => {
-    if(newItemName && newItemQuantity){
-      const quantity = parseFloat(newItemQuantity);
-      if(!isNaN(quantity)){
-        const newItem = {
-          name: newItemName,
-          initlQuantity: quantity,
-          defaultUnit: newItemUnit,
-        };
-
-        setInventoryItems(prevItems => {
-          const updateItems = [...prevItems, newItem];
-    
-          console.log(updateItems);
-          return updateItems;
-        });
-      }
-    }
-
-    setNewItemName('');
-    setNewItemQuantity('');
-    setNewItemUnit('');
-    
-  };
 
   const sampleRecipe = {
     name: 'Hearty Vegetable Stew',
@@ -84,15 +56,45 @@ function App(): React.JSX.Element {
             setModalVisible(false);
             setNewItemName('');
             setNewItemQuantity('');
-            setNewItemUnit('kg'); // or your default unit
+            setNewItemUnit('unit(s)'); // or your default unit
           }}
-          onAdd={(name, quantity, unit) => {
-            setInventoryItems(prev => [...prev, { name, initlQuantity: quantity, defaultUnit: unit }]);
+
+          onAdd={(name: string, quantity: number, unit: string) => {
+            // Normalize the name to remove extra spaces and ensure lowercase comparison
+            const normalizedName = name.toLowerCase().replace(/\s+/g, '').trim();
+          
+            setInventoryItems(prevItems => {
+              // Check if the item exists in the inventory
+              const existingItemIndex = prevItems.findIndex(item => 
+                item.name.toLowerCase().replace(/\s+/g, '').trim() === normalizedName
+              );
+          
+              if (existingItemIndex !== -1) {
+                // Item found, update the quantity
+                const updatedItems = [...prevItems];
+                updatedItems[existingItemIndex].initlQuantity += quantity;
+                return updatedItems;
+              } else {
+                // Item not found, create a new entry
+                return [
+                  ...prevItems,
+                  {
+                    name: name.charAt(0).toUpperCase() + name.slice(1).toLowerCase(),
+                    initlQuantity: quantity,
+                    defaultUnit: unit,
+                  },
+                ];
+              }
+            });
+          
+            // Reset modal and form states after adding the item
             setModalVisible(false);
             setNewItemName('');
             setNewItemQuantity('');
-            setNewItemUnit('kg');
+            setNewItemUnit('unit(s)');
           }}
+          
+          
           newItemName={newItemName}
           setNewItemName={setNewItemName}
           newItemQuantity={newItemQuantity}
